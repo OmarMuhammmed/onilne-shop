@@ -1,12 +1,158 @@
-{% extends "shop/base.html" %}
-{% block title %}
-    Thank you
-{% endblock %}
+{% extends "shop/base.html" %} {% block title %} Order Confirmed - My Shop {%
+endblock %} {% block content %}
+<div class="max-w-2xl mx-auto text-center">
+  <!-- Success Animation -->
+  <div class="mb-8">
+    <div
+      class="w-24 h-24 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+      <svg
+        class="w-12 h-12 text-green-600"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M5 13l4 4L19 7"></path>
+      </svg>
+    </div>
+  </div>
 
-{% block content %}
+  <!-- Success Message -->
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
+    <h1 class="text-4xl font-bold text-gray-900 mb-4">Thank You!</h1>
+    <p class="text-xl text-gray-600 mb-6">
+      Your order has been successfully placed.
+    </p>
 
-    <h1>Thank you</h1>
-    <p>Your order has been successfully completed. Your order number is
-    <strong>{{ order.id }}</strong>.</p>
-    
+    <!-- Order Details -->
+    <div class="bg-green-50 rounded-xl p-6 border border-green-200">
+      <div class="flex items-center justify-center space-x-2 mb-4">
+        <svg
+          class="w-5 h-5 text-green-600"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+        </svg>
+        <span class="text-green-800 font-semibold">Order Number</span>
+      </div>
+      <p class="text-3xl font-bold text-green-800">#{{ order.id }}</p>
+      <p class="text-sm text-green-600 mt-2">
+        Keep this number for your records
+      </p>
+    </div>
+  </div>
+
+  <!-- What's Next -->
+  <div class="bg-white rounded-2xl shadow-lg border border-gray-100 p-8 mb-8">
+    <h2 class="text-2xl font-bold text-gray-900 mb-6">What happens next?</h2>
+
+    <div class="space-y-4">
+      <div class="flex items-start space-x-4 text-left">
+        <div
+          class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <span class="text-blue-600 font-bold text-sm">1</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-900">Order Confirmation</h3>
+          <p class="text-gray-600 text-sm">
+            You'll receive an email confirmation shortly with your order
+            details.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-start space-x-4 text-left">
+        <div
+          class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <span class="text-blue-600 font-bold text-sm">2</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-900">Processing</h3>
+          <p class="text-gray-600 text-sm">
+            We'll prepare your order for shipment within 1-2 business days.
+          </p>
+        </div>
+      </div>
+
+      <div class="flex items-start space-x-4 text-left">
+        <div
+          class="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <span class="text-blue-600 font-bold text-sm">3</span>
+        </div>
+        <div>
+          <h3 class="font-semibold text-gray-900">Shipping</h3>
+          <p class="text-gray-600 text-sm">
+            Your order will be shipped and you'll receive tracking information.
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Buttons -->
+  <div class="flex flex-col sm:flex-row gap-4 justify-center">
+    <a
+      href="{% url 'shop:product_list' %}"
+      class="inline-flex items-center px-6 py-3 border border-gray-300 text-gray-700 font-medium rounded-xl hover:bg-gray-50 transition-colors">
+      <svg
+        class="w-5 h-5 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+      </svg>
+      Continue Shopping
+    </a>
+
+    <button
+      onclick="window.print()"
+      class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-xl hover:bg-blue-700 transition-colors">
+      <svg
+        class="w-5 h-5 mr-2"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24">
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"></path>
+      </svg>
+      Print Receipt
+    </button>
+  </div>
+
+  <!-- Contact Info -->
+  <div class="mt-8 p-6 bg-gray-50 rounded-xl">
+    <h3 class="font-semibold text-gray-900 mb-2">Need Help?</h3>
+    <p class="text-gray-600 text-sm">
+      If you have any questions about your order, please contact our customer
+      support team.
+    </p>
+    <div class="flex items-center justify-center space-x-4 mt-4">
+      <a
+        href="mailto:support@myshop.com"
+        class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+        📧 support@myshop.com
+      </a>
+      <span class="text-gray-400">|</span>
+      <a
+        href="tel:+1234567890"
+        class="text-blue-600 hover:text-blue-700 text-sm font-medium">
+        📞 (123) 456-7890
+      </a>
+    </div>
+  </div>
+</div>
 {% endblock %}

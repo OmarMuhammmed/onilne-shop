@@ -1,36 +1,99 @@
 {% load static %}
-{% load static %}
 <!DOCTYPE html>
-<html>
+<html lang="en" class="h-full">
   <head>
     <meta charset="utf-8" />
-    <title>{% block title %}My shop{% endblock %}</title>
-    <link href="{% static 'css/base.css' %}" rel="stylesheet">
-  </head>
-  <body>
-    <div id="header">
-      <a href="/" class="logo">My shop</a>
-    </div>
-    <div id="subheader">
-        {% with total_items=cart|length %}
-            {% if total_items > 0 %}
-                Your cart:
-                <a href="{% url 'cart:cart_detail' %}">
-                    {{ total_items }} item{{ total_items|pluralize }},
-                    ${{ cart.get_total_price }}
-                </a>
-
-            {% elif not order %}
-                Your cart is empty.
-            {% endif %}
-
-        {% endwith %}
-</div>
-    <div id="content">
-        {% block content %} 
-        {% endblock %}
-    </div>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{% block title %}Online Shop{% endblock %}</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            colors: {
+              primary: {
+                50: "#eff6ff",
+                500: "#3b82f6",
+                600: "#2563eb",
+                700: "#1d4ed8",
+              },
+            },
+          },
+        },
+      };
+    </script>
+  </head>
+  <body class="h-full bg-gray-50 font-sans antialiased">
+    <!-- Header -->
+    <header class="bg-gradient-to-r from-blue-600 to-purple-600 shadow-lg">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="flex justify-between items-center py-6">
+          <div class="flex items-center">
+            <a
+              href="/"
+              class="text-3xl font-bold text-white hover:text-blue-100 transition-colors duration-200">
+              🛍️ My Shop
+            </a>
+          </div>
 
+          <!-- Cart Info -->
+          <div class="flex items-center space-x-4">
+            {% with total_items=cart|length %} {% if total_items > 0 %}
+            <a
+              href="{% url 'cart:cart_detail' %}"
+              class="bg-white/10 backdrop-blur-sm text-white px-4 py-2 rounded-full hover:bg-white/20 transition-all duration-200 flex items-center space-x-2">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+              </svg>
+              <span class="font-medium"
+                >{{ total_items }} item{{ total_items|pluralize }}</span
+              >
+              <span
+                class="bg-yellow-400 text-gray-900 px-2 py-1 rounded-full text-sm font-bold"
+                >${{ cart.get_total_price }}</span
+              >
+            </a>
+            {% elif not order %}
+            <div class="text-white/70 flex items-center space-x-2">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+              </svg>
+              <span>Your cart is empty</span>
+            </div>
+            {% endif %} {% endwith %}
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {% block content %} {% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-gray-800 text-white mt-16">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div class="text-center">
+          <p class="text-gray-400">&copy; 2026 My Shop. All rights reserved.</p>
+        </div>
+      </div>
+    </footer>
   </body>
 </html>

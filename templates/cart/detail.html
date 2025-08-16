@@ -1,68 +1,287 @@
-{% extends "shop/base.html" %} 
-{% load static %} {% block title %} Your shopping cart {% endblock %} 
+{% extends "shop/base.html" %}
+{% load static %}
+
+{% block title %}
+    Your Shopping Cart - My Shop
+{% endblock %}
 
 {% block content %}
-<h1>Your shopping cart</h1>
-<table class="cart">
-  <thead>
-    <tr>
-      <th>Image</th>
-      <th>Product</th>
-      <th>Quantity</th>
-      <th>Remove</th>
-      <th>Unit price</th>
-      <th>Price</th>
-    </tr>
-  </thead>
-  <tbody>
-    {% for item in cart %} {% with product=item.product %}
-    <tr>
-      <td>
-        <a href="{{ product.get_absolute_url }}">
-          <img
-            src=
-            "{% if product.image %}
-                {{ product.image.url }} 
-            {% else %}
-                {% static 'img/no_image.png' %}{% endif %}" />
-        </a>
-      </td>
-      <td>{{ product.name }}</td>
-      <td>
-            <form action="{% url 'cart:cart_add' product.id %}" method="post">
-                {% csrf_token %}
-                {{ item.update_quantity_form.quantity }}
-                {{ item.update_quantity_form.override }}
-                <input type="submit" value="Update">
-            </form>
-      </td>
-      <td>
-        <form action="{% url 'cart:cart_remove' product.id %}" method="post">
-          <input type="submit" value="Remove" />
-          {% csrf_token %}
-        </form>
-      </td>
-      <td class="num">${{ item.price }}</td>
-      <td class="num">${{ item.total_price }}</td>
-    </tr>
-    {% endwith %} {% endfor %}
-    <tr class="total">
-      <td>Total</td>
-      <td colspan="4"></td>
-      <td class="num">${{ cart.get_total_price }}</td>
-    </tr>
-  </tbody>
-</table>
-<p class="text-right">
+    <!-- Page Header with Animation -->
+    <div class="text-center mb-12 animate-fade-in">
+        <div class="inline-flex items-center justify-center w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full mb-6">
+            <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+            </svg>
+        </div>
+        <h1 class="text-5xl font-bold bg-gradient-to-r from-gray-900 to-gray-600 bg-clip-text text-transparent mb-4">
+            Your Shopping Cart
+        </h1>
+        <p class="text-xl text-gray-600">Review and manage your selected items</p>
+    </div>
 
-  <a href="{% url 'shop:product_list' %}" class="py-2.5 px-5 me-2 mb-2 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-full border border-gray-200 hover:bg-gray-100 hover:text-blue-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
-    >Continue shopping</a
-  >
-  <br>
-  <br>
-  
+    {% if cart %}
+        <div class="max-w-4xl mx-auto">
+            <!-- Modern Cart Container -->
+            <div class="bg-white/80 backdrop-blur-sm rounded-3xl shadow-2xl border border-gray-200/50 overflow-hidden">
+                <!-- Cart Items -->
+                <div id="cart-items" class="divide-y divide-gray-100">
+                    {% for item in cart %}
+                        {% with product=item.product %}
+                            <div class="cart-item group p-8 hover:bg-gradient-to-r hover:from-blue-50/50 hover:to-purple-50/50 transition-all duration-300" 
+                                 data-product-id="{{ product.id }}">
+                                <div class="flex items-center space-x-8">
+                                    <!-- Product Image with Hover Effect -->
+                                    <div class="flex-shrink-0 relative">
+                                        <a href="{{ product.get_absolute_url }}" class="block group">
+                                            <div class="relative overflow-hidden rounded-2xl">
+                                                <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}" 
+                                                     alt="{{ product.name }}"
+                                                     class="w-24 h-24 object-cover transition-transform duration-300 group-hover:scale-110">
+                                                <div class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-2xl"></div>
+                                            </div>
+                                        </a>
+                                    </div>
 
-  <a href="{% url 'orders:order_create' %}" 
-  class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 py-2.5 text-center me-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800">Checkout</a>
-</p>
+                                    <!-- Product Info -->
+                                    <div class="flex-1 min-w-0">
+                                        <h3 class="text-xl font-bold text-gray-900 mb-2 group-hover:text-blue-600 transition-colors">
+                                            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+                                        </h3>
+                                        <div class="flex items-center space-x-4 text-sm text-gray-600">
+                                            <span class="bg-gray-100 px-3 py-1 rounded-full">Unit: ${{ item.price }}</span>
+                                            <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full">In Stock</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Modern Quantity Controls -->
+                                    <div class="flex items-center space-x-4">
+                                        <div class="bg-gray-50 rounded-2xl p-4 border border-gray-200">
+                                            <form action="{% url 'cart:cart_add' product.id %}" method="post" 
+                                                  class="flex items-center space-x-3" onsubmit="showUpdateLoader(this)">
+                                                {% csrf_token %}
+                                                <label class="text-sm font-semibold text-gray-700">Qty:</label>
+                                                <div class="relative">
+                                                    <select name="quantity" 
+                                                            class="appearance-none bg-white border-2 border-gray-200 rounded-xl px-4 py-2 pr-8 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all text-center font-semibold">
+                                                        {% for i in "123456789"|make_list %}
+                                                            <option value="{{ i }}" {% if item.quantity == i|add:0 %}selected{% endif %}>{{ i }}</option>
+                                                        {% endfor %}
+                                                    </select>
+                                                    <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+                                                        <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
+                                                            <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/>
+                                                        </svg>
+                                                    </div>
+                                                </div>
+                                                {{ item.update_quantity_form.override }}
+                                                <button type="submit" 
+                                                        class="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-xl font-semibold transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                                                    <span class="update-text">Update</span>
+                                                    <span class="update-loader hidden">
+                                                        <svg class="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                                                            <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                                                            <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                        </svg>
+                                                    </span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+
+                                    <!-- Price Display -->
+                                    <div class="text-right min-w-0">
+                                        <p class="text-2xl font-bold bg-gradient-to-r from-green-600 to-green-500 bg-clip-text text-transparent">
+                                            ${{ item.total_price }}
+                                        </p>
+                                        <p class="text-sm text-gray-500 mt-1">{{ item.quantity }} × ${{ item.price }}</p>
+                                    </div>
+
+                                    <!-- Modern Remove Button -->
+                                    <div class="flex-shrink-0">
+                                        <button onclick="removeItem({{ product.id }}, '{{ product.name|escapejs }}')" 
+                                                class="group relative p-3 text-red-500 hover:text-red-600 bg-red-50 hover:bg-red-100 rounded-2xl transition-all duration-200 transform hover:scale-110">
+                                            <svg class="w-6 h-6 transition-transform group-hover:rotate-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+                                            </svg>
+                                            <span class="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">×</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endwith %}
+                    {% endfor %}
+                </div>
+
+                <!-- Modern Cart Summary -->
+                <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-8 py-10">
+                    <div class="flex justify-between items-center mb-8">
+                        <div>
+                            <h3 class="text-2xl font-bold text-gray-900 mb-2">Order Summary</h3>
+                            <div class="flex items-center space-x-2">
+                                <span class="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                    {{ cart|length }} item{{ cart|length|pluralize }}
+                                </span>
+                                <span class="bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm font-semibold">
+                                    Free Shipping
+                                </span>
+                            </div>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-4xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                                ${{ cart.get_total_price }}
+                            </p>
+                            <p class="text-sm text-gray-600 mt-1">Total amount</p>
+                        </div>
+                    </div>
+
+                    <!-- Modern Action Buttons -->
+                    <div class="flex flex-col sm:flex-row gap-4">
+                        <a href="{% url 'shop:product_list' %}" 
+                           class="flex-1 group flex items-center justify-center px-8 py-4 bg-white border-2 border-gray-200 text-gray-700 font-bold rounded-2xl hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 transform hover:scale-105">
+                            <svg class="w-5 h-5 mr-3 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"></path>
+                            </svg>
+                            Continue Shopping
+                        </a>
+                        
+                        <a href="{% url 'orders:order_create' %}" 
+                           class="flex-1 group flex items-center justify-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                            <svg class="w-5 h-5 mr-3 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                            </svg>
+                            Proceed to Checkout
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modern Trust Indicators -->
+            <div class="mt-12 grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="group text-center p-8 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 hover:bg-white/80 transition-all duration-300 transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-r from-green-400 to-green-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:rotate-6 transition-transform">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.031 9-11.622 0-1.042-.133-2.052-.382-3.016z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-3 text-lg">Secure Checkout</h3>
+                    <p class="text-gray-600">256-bit SSL encryption protects your data</p>
+                </div>
+                
+                <div class="group text-center p-8 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 hover:bg-white/80 transition-all duration-300 transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-r from-blue-400 to-blue-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:rotate-6 transition-transform">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-3 text-lg">Lightning Fast</h3>
+                    <p class="text-gray-600">Free 2-day shipping on orders over $50</p>
+                </div>
+                
+                <div class="group text-center p-8 bg-white/60 backdrop-blur-sm rounded-2xl border border-gray-200/50 hover:bg-white/80 transition-all duration-300 transform hover:scale-105">
+                    <div class="w-16 h-16 bg-gradient-to-r from-purple-400 to-purple-500 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:rotate-6 transition-transform">
+                        <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z"></path>
+                        </svg>
+                    </div>
+                    <h3 class="font-bold text-gray-900 mb-3 text-lg">Love It Guarantee</h3>
+                    <p class="text-gray-600">30-day hassle-free returns</p>
+                </div>
+            </div>
+        </div>
+
+    {% else %}
+        <!-- Ultra Modern Empty Cart State -->
+        <div class="text-center py-20 animate-fade-in">
+            <div class="relative mb-8">
+                <div class="w-32 h-32 bg-gradient-to-r from-gray-100 to-gray-200 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
+                    <svg class="w-16 h-16 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+                    </svg>
+                </div>
+                <div class="absolute top-0 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-blue-500 rounded-full animate-ping"></div>
+            </div>
+            <h3 class="text-3xl font-bold text-gray-900 mb-4">Your cart is waiting</h3>
+            <p class="text-xl text-gray-600 mb-10 max-w-md mx-auto">Discover amazing products and start building your perfect order</p>
+            <a href="{% url 'shop:product_list' %}" 
+               class="group inline-flex items-center px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-bold rounded-2xl transition-all duration-200 transform hover:scale-105 shadow-lg hover:shadow-xl">
+                <svg class="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"></path>
+                </svg>
+                Start Shopping Now
+            </a>
+        </div>
+    {% endif %}
+
+    <!-- Custom Styles and Scripts -->
+    <style>
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in {
+            animation: fade-in 0.6s ease-out;
+        }
+        
+        .cart-item {
+            animation: fade-in 0.4s ease-out;
+        }
+        
+        .removing {
+            animation: slide-out 0.3s ease-in forwards;
+        }
+        
+        @keyframes slide-out {
+            to {
+                opacity: 0;
+                transform: translateX(-100%);
+                height: 0;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+
+    <script>
+        function showUpdateLoader(form) {
+            const button = form.querySelector('button[type="submit"]');
+            const text = button.querySelector('.update-text');
+            const loader = button.querySelector('.update-loader');
+            
+            text.classList.add('hidden');
+            loader.classList.remove('hidden');
+            button.disabled = true;
+        }
+
+        function removeItem(productId, productName) {
+            // Show modern confirmation dialog
+            if (confirm(`Remove "${productName}" from your cart?`)) {
+                const cartItem = document.querySelector(`[data-product-id="${productId}"]`);
+                
+                // Add removing animation
+                cartItem.classList.add('removing');
+                
+                // Wait for animation to complete, then submit form
+                setTimeout(() => {
+                    // Create and submit form
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = `/cart/remove/${productId}/`;
+                    
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    const csrfInput = document.createElement('input');
+                    csrfInput.type = 'hidden';
+                    csrfInput.name = 'csrfmiddlewaretoken';
+                    csrfInput.value = csrfToken;
+                    
+                    form.appendChild(csrfInput);
+                    document.body.appendChild(form);
+                    form.submit();
+                }, 300);
+            }
+        }
+
+        // Add smooth scroll behavior
+        document.documentElement.style.scrollBehavior = 'smooth';
+    </script>
 {% endblock %}

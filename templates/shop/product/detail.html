@@ -1,29 +1,218 @@
-{% extends "shop/base.html" %}
-{% load static %}
-    {% block title %}
-        {{ product.name }}
-    {% endblock %}
-
+{% extends "shop/base.html" %} 
+{% load static %} 
+    {% block title %} 
+    {{product.name }} - My Shop 
+    {% endblock %} 
+    
 {% block content %}
-    <div class="product-detail">
-        <img src=
-        "{% if product.image %}
-            {{ product.image.url }}
-        {% else %}
-            {% static 'img/no_image.png' %}
-        {% endif %}">
-        <h1>{{ product.name }}</h1>
-        <h2>
-            <a href="{{ product.category.get_absolute_url }}">
-                {{ product.category }}
-            </a>
-        </h2>
-        <p class="price">${{ product.price }}</p>
-        <form action="{% url 'cart:cart_add' product.id %}" method="post">
-            {% csrf_token %}
-            {{ cart_product_form }}
-            <input type="submit" value="Add to cart">
-        </form>
-        {{ product.description|linebreaks }}
+<!-- Breadcrumb -->
+<nav class="flex mb-8" aria-label="Breadcrumb">
+  <ol class="inline-flex items-center space-x-1 md:space-x-3">
+    <li class="inline-flex items-center">
+      <a
+        href="{% url 'shop:product_list' %}"
+        class="inline-flex items-center text-sm font-medium text-gray-700 hover:text-blue-600">
+        <svg class="w-4 h-4 mr-2" fill="currentColor" viewBox="0 0 20 20">
+          <path
+            d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path>
+        </svg>
+        Home
+      </a>
+    </li>
+    <li>
+      <div class="flex items-center">
+        <svg
+          class="w-6 h-6 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"></path>
+        </svg>
+        <a
+          href="{{ product.category.get_absolute_url }}"
+          class="ml-1 text-sm font-medium text-gray-700 hover:text-blue-600 md:ml-2">
+          {{ product.category }}
+        </a>
+      </div>
+    </li>
+    <li aria-current="page">
+      <div class="flex items-center">
+        <svg
+          class="w-6 h-6 text-gray-400"
+          fill="currentColor"
+          viewBox="0 0 20 20">
+          <path
+            fill-rule="evenodd"
+            d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z"
+            clip-rule="evenodd"></path>
+        </svg>
+        <span class="ml-1 text-sm font-medium text-gray-500 md:ml-2"
+          >{{ product.name }}</span
+        >
+      </div>
+    </li>
+  </ol>
+</nav>
+
+<!-- Product Detail -->
+<div
+  class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden">
+  <div class="lg:grid lg:grid-cols-2 lg:gap-x-8">
+    <!-- Product Image -->
+    <div class="aspect-square lg:aspect-auto">
+      <img
+        src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}"
+        alt="{{ product.name }}"
+        class="w-full h-full object-cover lg:h-full lg:w-full" />
     </div>
+
+    <!-- Product Info -->
+    <div class="p-8 lg:p-12">
+      <!-- Category Badge -->
+      <div class="mb-4">
+        <a
+          href="{{ product.category.get_absolute_url }}"
+          class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800 hover:bg-blue-200 transition-colors">
+          <svg
+            class="w-4 h-4 mr-1"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"></path>
+          </svg>
+          {{ product.category }}
+        </a>
+      </div>
+
+      <!-- Product Name -->
+      <h1 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-6">
+        {{ product.name }}
+      </h1>
+
+      <!-- Price -->
+      <div class="mb-8">
+        <p class="text-4xl font-bold text-blue-600">${{ product.price }}</p>
+      </div>
+
+      <!-- Add to Cart Form -->
+      <form
+        action="{% url 'cart:cart_add' product.id %}"
+        method="post"
+        class="mb-8">
+        {% csrf_token %}
+        <div class="flex items-center space-x-4 mb-6">
+          <label for="quantity" class="text-sm font-medium text-gray-700"
+            >Quantity:</label
+          >
+          <div class="relative">
+            {{ cart_product_form.quantity.as_widget }}
+            <style>
+              select {
+                @apply appearance-none bg-white border border-gray-300 rounded-lg px-4 py-2 pr-8 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500;
+              }
+            </style>
+            <div
+              class="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-700">
+              <svg class="fill-current h-4 w-4" viewBox="0 0 20 20">
+                <path
+                  d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+              </svg>
+            </div>
+          </div>
+          {{ cart_product_form.override }}
+        </div>
+
+        <button
+          type="submit"
+          class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 px-8 rounded-xl transition-colors duration-200 flex items-center justify-center space-x-2 text-lg">
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+          </svg>
+          <span>Add to Cart</span>
+        </button>
+      </form>
+
+      <!-- Product Description -->
+      {% if product.description %}
+      <div class="border-t border-gray-200 pt-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Description</h3>
+        <div class="prose prose-blue max-w-none text-gray-600">
+          {{ product.description|linebreaks }}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Features -->
+      <div class="border-t border-gray-200 pt-8 mt-8">
+        <h3 class="text-lg font-semibold text-gray-900 mb-4">Features</h3>
+        <ul class="space-y-2 text-gray-600">
+          <li class="flex items-center">
+            <svg
+              class="w-5 h-5 text-green-500 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+            </svg>
+            High quality materials
+          </li>
+          <li class="flex items-center">
+            <svg
+              class="w-5 h-5 text-green-500 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+            </svg>
+            Fast shipping
+          </li>
+          <li class="flex items-center">
+            <svg
+              class="w-5 h-5 text-green-500 mr-2"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M5 13l4 4L19 7"></path>
+            </svg>
+            30-day return policy
+          </li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Related Products Section -->
+<div class="mt-16">
+  <h2 class="text-2xl font-bold text-gray-900 mb-8">You might also like</h2>
+  <div class="text-center py-8 text-gray-500">
+    <p>Related products coming soon...</p>
+  </div>
+</div>
 {% endblock %}

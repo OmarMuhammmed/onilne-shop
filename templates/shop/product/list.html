@@ -1,46 +1,230 @@
-{% extends "shop/base.html" %}
-{% load static %}
+{% extends "shop/base.html" %} 
+{% load static %} 
 
-{% block title %}
+{% block title %} 
+    {% if category %} 
+        {{ category.name }} - My Shop 
+    {% else %} 
+        Products - My Shop 
+    {% endif%} 
+{% endblock %} 
 
-    {% if category %}
-        {{ category.name }}
-    {% else %}
-        Products
-    {% endif %}
-
-{% endblock %}
 {% block content %}
-    <div id="sidebar">
-        <h3>Categories</h3>
-        <ul>
-            <li {% if not category %}class="selected"{% endif %}>
-            <a href="{% url "shop:product_list" %}">All</a>
-            </li>
-            {% for c in categories %}
-                <li {% if category.slug == c.slug %}class="selected"{% endif %}>
-                <a href="{{ c.get_absolute_url }}">{{ c.name }}</a>
-                </li>
-            {% endfor %}
-        </ul>
-    </div>
-    <div id="main" class="product-list">
-        <h1>
-            {% if category %}
-                {{ category.name }}
-            {% else %}
-                Products
-            {% endif %}
-        </h1>
-        {% for product in products %}
-            <div class="item">
-                <a href="{{ product.get_absolute_url }}">
-                    <img src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}">
-                </a>
-                <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
-                <br>
-                ${{ product.price }}
+<!-- Page Header -->
+<div class="text-center mb-12">
+  <h1 class="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+    {% if category %} {{ category.name }} {% else %} Our Products {% endif %}
+  </h1>
+  <p class="text-xl text-gray-600 max-w-2xl mx-auto">
+    Discover our amazing collection of high-quality products
+  </p>
+</div>
+
+<div class="flex flex-col lg:flex-row gap-8">
+  <!-- Modern Dropdown Sidebar -->
+  <div class="lg:w-80 flex-shrink-0">
+    <div
+      class="bg-white rounded-2xl shadow-lg border border-gray-100 overflow-hidden sticky top-8">
+      <!-- Dropdown Header -->
+      <div
+        class="bg-gradient-to-r from-blue-50 to-purple-50 p-6 border-b border-gray-100">
+        <button
+          onclick="toggleDropdown()"
+          class="w-full flex items-center justify-between text-left focus:outline-none group">
+          <div class="flex items-center space-x-3">
+            <div
+              class="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center group-hover:bg-blue-200 transition-colors">
+              <svg
+                class="w-5 h-5 text-blue-600"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"></path>
+              </svg>
             </div>
-        {% endfor %}
+            <div>
+              <h3 class="font-semibold text-gray-900">Categories</h3>
+              <p class="text-sm text-gray-500">
+                {{ categories|length }} available
+              </p>
+            </div>
+          </div>
+          <svg
+            id="dropdownArrow"
+            class="w-5 h-5 text-gray-400 transition-transform duration-200"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24">
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M19 9l-7 7-7-7"></path>
+          </svg>
+        </button>
+      </div>
+
+      <!-- Dropdown Menu -->
+      <div
+        id="categoryDropdown"
+        class="max-h-0 overflow-hidden transition-all duration-300 ease-in-out">
+        <div class="p-2">
+          <a
+            href="{% url 'shop:product_list' %}"
+            class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group {% if not category %}bg-blue-50 text-blue-700{% else %}text-gray-700{% endif %}">
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-blue-400 to-blue-600 rounded-lg flex items-center justify-center">
+              <span class="text-white text-sm">🛍️</span>
+            </div>
+            <div class="flex-1">
+              <span class="font-medium">All Products</span>
+              <p class="text-xs text-gray-500">View everything</p>
+            </div>
+            {% if not category %}
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            {% endif %}
+          </a>
+
+          {% for c in categories %}
+          <a
+            href="{{ c.get_absolute_url }}"
+            class="flex items-center space-x-3 px-4 py-3 rounded-xl hover:bg-gray-50 transition-colors group {% if category.slug == c.slug %}bg-blue-50 text-blue-700{% else %}text-gray-700{% endif %}">
+            <div
+              class="w-8 h-8 bg-gradient-to-br from-purple-400 to-purple-600 rounded-lg flex items-center justify-center">
+              <span class="text-white text-sm">📦</span>
+            </div>
+            <div class="flex-1">
+              <span class="font-medium">{{ c.name }}</span>
+              <p class="text-xs text-gray-500">Browse {{ c.name|lower }}</p>
+            </div>
+            {% if category.slug == c.slug %}
+            <div class="w-2 h-2 bg-blue-500 rounded-full"></div>
+            {% endif %}
+          </a>
+          {% endfor %}
+        </div>
+      </div>
     </div>
+  </div>
+
+  <!-- Products Grid -->
+  <div class="flex-1">
+    {% if products %}
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      {% for product in products %}
+      <div
+        class="group bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-xl hover:border-blue-200 transition-all duration-300 transform hover:-translate-y-1">
+        <!-- Product Image -->
+        <div class="relative aspect-square overflow-hidden bg-gray-100">
+          <a href="{{ product.get_absolute_url }}" class="block h-full">
+            <img
+              src="{% if product.image %}{{ product.image.url }}{% else %}{% static 'img/no_image.png' %}{% endif %}"
+              alt="{{ product.name }}"
+              class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
+          </a>
+
+          <!-- Overlay on hover -->
+          <div
+            class="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+            <a
+              href="{{ product.get_absolute_url }}"
+              class="bg-white text-gray-900 px-6 py-2 rounded-full font-medium hover:bg-gray-100 transition-colors transform translate-y-4 group-hover:translate-y-0 duration-300">
+              View Details
+            </a>
+          </div>
+        </div>
+
+        <!-- Product Info -->
+        <div class="p-6">
+          <h3
+            class="font-semibold text-gray-900 mb-2 line-clamp-2 group-hover:text-blue-600 transition-colors">
+            <a href="{{ product.get_absolute_url }}">{{ product.name }}</a>
+          </h3>
+
+          <div class="flex items-center justify-between">
+            <span class="text-2xl font-bold text-blue-600"
+              >${{ product.price }}</span
+            >
+            <button
+              class="bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-lg transition-colors">
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M3 3h2l.4 2M7 13h10l4-8H5.4m0 0L7 13m0 0l-1.5 6M7 13l-1.5 6m0 0h9M17 13v6a2 2 0 01-2 2H9a2 2 0 01-2-2v-6"></path>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    {% else %}
+    <!-- Empty State -->
+    <div class="text-center py-16">
+      <div
+        class="w-24 h-24 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
+        <svg
+          class="w-12 h-12 text-gray-400"
+          fill="none"
+          stroke="currentColor"
+          viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"></path>
+        </svg>
+      </div>
+      <h3 class="text-xl font-semibold text-gray-900 mb-2">
+        No products found
+      </h3>
+      <p class="text-gray-600 mb-6">
+        We couldn't find any products in this category.
+      </p>
+      <a
+        href="{% url 'shop:product_list' %}"
+        class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition-colors">
+        View All Products
+      </a>
+    </div>
+    {% endif %}
+  </div>
+</div>
+
+<script>
+  function toggleDropdown() {
+    const dropdown = document.getElementById("categoryDropdown");
+    const arrow = document.getElementById("dropdownArrow");
+
+    if (dropdown.style.maxHeight === "0px" || dropdown.style.maxHeight === "") {
+      dropdown.style.maxHeight = dropdown.scrollHeight + "px";
+      arrow.style.transform = "rotate(180deg)";
+    } else {
+      dropdown.style.maxHeight = "0px";
+      arrow.style.transform = "rotate(0deg)";
+    }
+  }
+
+  // Close dropdown when clicking outside
+  document.addEventListener("click", function (event) {
+    const dropdown = document.getElementById("categoryDropdown");
+    const button = event.target.closest("button");
+
+    if (!button || !button.onclick) {
+      dropdown.style.maxHeight = "0px";
+      document.getElementById("dropdownArrow").style.transform = "rotate(0deg)";
+    }
+  });
+</script>
 {% endblock %}
