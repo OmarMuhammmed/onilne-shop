@@ -134,3 +134,19 @@ STATICFILES_DIRS = [BASE_DIR / 'static']
 CRISPY_ALLOWED_TEMPLATE_PACKS = "tailwind"
 
 CRISPY_TEMPLATE_PACK = "tailwind"
+
+
+## Email Config
+
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
+
+
+## Celery Config
+# TODO : why celery and rabbitmq not works
+
+CELERY_BROKER_URL = 'pyamqp://guest@localhost//'
+CELERY_RESULT_BACKEND = 'rpc://'
+CELERY_ACCEPT_CONTENT = ['application/json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = TIME_ZONE
